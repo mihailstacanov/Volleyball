@@ -17,7 +17,9 @@ jobs:
       contents: write
     steps:
       - uses: actions/checkout@v4
-      - run: python -m pip install beautifulsoup4==4.13.4
+      - run: python -m pip install beautifulsoup4==4.13.4 html5lib==1.1
+      - name: Regression test parser and dashboard
+        run: python scripts/update_dashboard.py --self-test
       - name: Validate and update league data
         run: python scripts/update_dashboard.py
       - name: Commit verified changes
@@ -32,6 +34,16 @@ jobs:
             git commit -m "Refresh verified volleyball league data"
             git push origin HEAD:main
           fi
+  verify:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && (contains(github.event.head_commit.modified, 'scripts/update_dashboard.py') || contains(github.event.head_commit.modified, '.github/workflows/volleyball.yml'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - run: python -m pip install beautifulsoup4==4.13.4 html5lib==1.1
+      - run: python scripts/update_dashboard.py --self-test
+      - name: Live source dry run without changing repository
+        run: python scripts/update_dashboard.py --check
   deploy:
     needs: refresh
     if: always() && github.repository == 'mihailstacanov/Volleyball' && github.ref == 'refs/heads/main' && ((github.event_name == 'push' && needs.refresh.result == 'skipped') || (github.event_name == 'workflow_dispatch' && needs.refresh.result == 'success'))
@@ -56,5 +68,21 @@ jobs:
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
+      - name: Wait for Pages artifact to become visible
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for attempt in $(seq 1 12); do
+            if gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" --jq '.artifacts[] | select(.name == "github-pages" and .expired == false) | .id' | grep -qE '^[0-9]+
+        id: deployment
+; then
+              echo "Pages artifact is visible."
+              exit 0
+            fi
+            echo "Waiting for artifact metadata ($attempt/12)"
+            sleep 5
+          done
+          echo "::error::Pages artifact is not visible through the GitHub API"
+          exit 1
       - uses: actions/deploy-pages@v4
         id: deployment

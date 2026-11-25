@@ -27,39 +27,73 @@ def date(d): return datetime.fromisoformat(d).strftime("%d.%m.%Y")
 def pair(s): return tuple(int(x.strip()) for x in s.split(":"))
 def won(m): return sum(a>b for a,b in m[3])
 def parse(soup,names):
-    fixtures={}; table={}
+    fixtures={}; table={}; row_count=0; examples=[]
+    def norm(x): return " ".join(x.split())
+    def team(cell):
+        candidates=[norm(cell.get_text(" ",strip=True))]
+        candidates.extend(norm(x.get_text(" ",strip=True)) for x in cell.find_all(["a","span","strong"]))
+        candidates.extend(norm(str(x.get("alt",""))) for x in cell.find_all("img"))
+        exact={name for name in names if name in candidates}
+        if len(exact)==1: return next(iter(exact))
+        if not exact:
+            text=candidates[0]
+            hits=[name for name in names if re.search(r"(?<!\w)"+re.escape(name)+r"(?!\w)",text)]
+            if len(hits)==1: return hits[0]
+        return None
+    def store(target,key,value):
+        require(key not in target or target[key]==value,"Conflicting duplicate row: "+str(key))
+        target[key]=value
+    def numbers(cells):
+        out=[]
+        for x in cells:
+            if re.fullmatch(r"\d+",x): out.append(int(x))
+            elif re.fullmatch(r"\d+\s*:\s*\d+",x): out.extend(pair(x))
+        return out
     for tr in soup.find_all("tr"):
-        c=[" ".join(x.get_text(" ",strip=True).split()) for x in tr.find_all("td",recursive=False)]
-        ix=[i for i,x in enumerate(c) if x in names]
+        cells=tr.find_all(["td","th"],recursive=False)
+        if not cells: continue
+        row_count+=1
+        c=[norm(x.get_text(" ",strip=True)) for x in cells]
+        tags=[team(x) for x in cells]
+        ix=[i for i,x in enumerate(tags) if x is not None]
+        if ix and len(examples)<5: examples.append(c)
         if len(ix)==2:
             a,b=ix
-            ds=[i for i,x in enumerate(c[:a]) if re.fullmatch(r"\d{2}\.\d{2}\.\d{4}",x)]
+            prefix=" ".join(c[:a])
+            ds=re.findall(r"(?<!\d)(\d{1,2}\.\d{1,2}\.(?:\d{4}|\d{2}))(?!\d)",prefix)
+            ts=re.findall(r"(?<!\d)(\d{1,2}:[0-5]\d)(?!\d)",prefix)
             if not ds: continue
-            require(len(ds)==1 and b==a+1,"Unexpected match layout")
-            di=ds[0]; d=datetime.strptime(c[di],"%d.%m.%Y").date().isoformat(); t=c[di+1]
-            require("2026-07-01"<=d<"2027-07-01" and re.fullmatch(r"(?:[01]\d|2[0-3]):[0-5]\d",t),"Wrong season or missing time")
-            h,v=names.index(c[a]),names.index(c[b])
-            require(h!=v and (h,v) not in fixtures,"Duplicate fixture")
-            tail=c[b+1:b+13]
-            require(len(tail)==12,"Unexpected result columns")
-            if all(x in ("","–","-","—") for x in tail): score=None; sets=[]
+            require(len(ds)==1 and len(ts)==1,"Ambiguous fixture date/time: "+repr(c))
+            d=datetime.strptime(ds[0],"%d.%m.%Y" if len(ds[0].split(".")[-1])==4 else "%d.%m.%y").date().isoformat()
+            t=datetime.strptime(ts[0],"%H:%M").strftime("%H:%M")
+            require("2026-07-01"<=d<"2027-07-01","Wrong season")
+            h,v=names.index(tags[a]),names.index(tags[b])
+            require(h!=v,"Self fixture")
+            tail=c[b+1:]
+            vals=numbers(tail)
+            if not vals:
+                # Only accept an empty score or explicit placeholders, not an unparsed result.
+                require(not any(re.search(r"\d",x) for x in tail),"Unrecognized result: "+repr(tail))
+                score=None; sets=[]
             else:
-                require(all(re.fullmatch(r"\d+",x) for x in tail),"Partial/nonstandard result")
-                vals=list(map(int,tail))
+                require(len(vals)==12,"Expected twelve result values: "+repr(tail))
                 sets=[vals[i:i+2] for i in (6,8,10)]
                 score=sum(x>y for x,y in sets)
                 require(all(x!=y for x,y in sets) and vals[:4]==[score,3-score,score,3-score] and vals[4:6]==[sum(x for x,y in sets),sum(y for x,y in sets)],"Inconsistent match score")
-            fixtures[h,v]=([h,v,d,t,score],sets)
+            store(fixtures,(h,v),([h,v,d,t,score],sets))
         elif len(ix)==1:
             i=ix[0]
-            before=[x for x in c[:i] if re.fullmatch(r"\d+",x)]
-            after=[x for x in c[i+1:] if re.fullmatch(r"\d+|\d+\s*:\s*\d+",x)]
-            if len(before)!=1 or len(after)!=5 or ":" not in after[2] or ":" not in after[3]: continue
-            rank=int(before[0]); p,w=int(after[0]),int(after[1]); sw,sl=pair(after[2]); bp,ba=pair(after[3]); g=int(after[4])
-            key=names.index(c[i])
-            require(key not in table,"Duplicate standings")
-            table[key]=(rank,p,w,sw,sl,bp,ba,g)
-    require(len(fixtures)==len(names)*(len(names)-1),"Incomplete fixture list")
+            before=numbers(c[:i]); after=numbers(c[i+1:])
+            if len(before)!=1 or len(after)!=7: continue
+            rank=before[0]; p,w,sw,sl,bp,ba,g=after
+            key=names.index(tags[i])
+            store(table,key,(rank,p,w,sw,sl,bp,ba,g))
+    print(f"League HTML: {row_count} rows, {len(fixtures)} fixtures, {len(table)} standings",flush=True)
+    if len(fixtures)!=len(names)*(len(names)-1) or len(table)!=len(names):
+        print("Example recognized rows:",repr(examples)[:2500],flush=True)
+        if not examples:
+            print("First table rows:",repr([norm(x.get_text(" ",strip=True))[:200] for x in soup.find_all("tr")[:8]]),flush=True)
+    require(set(fixtures)=={(h,v) for h in range(len(names)) for v in range(len(names)) if h!=v},f"Incomplete fixture list: {len(fixtures)} of {len(names)*(len(names)-1)}")
     require(len(table)==len(names) and sorted(x[0] for x in table.values())==list(range(1,len(names)+1)),"Incomplete standings")
     for i in range(len(names)):
         played=[(m,st) for m,st in fixtures.values() if i in m[:2] and m[4] is not None]
@@ -69,6 +103,25 @@ def parse(soup,names):
         rank,p,ww,x,y,bp,ba,g=table[i]
         require((p,ww,x,y,bp,ba,g)==(sw,w,sw,sl,sum(a for a,b in ss),sum(b for a,b in ss),len(played)),"Official totals disagree: "+names[i])
     return fixtures,table
+
+def fetch_source(names):
+    errors=[]
+    for url in (URL,"https://www.ost.volleyball-freizeit.de/schedule/overview/1096"):
+        try:
+            req=Request(url,headers={"User-Agent":"Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36","Accept":"text/html,application/xhtml+xml","Accept-Language":"de-DE,de;q=0.9","Cache-Control":"no-cache"})
+            with urlopen(req,timeout=35) as response:
+                require(response.status==200,"League HTTP error")
+                raw=response.read(4_000_001)
+                print("League response:",response.geturl(),len(raw),"bytes",flush=True)
+            require(len(raw)<=4_000_000,"Source too large")
+            soup=BeautifulSoup(raw,"html5lib")
+            print("League title:",soup.title.get_text(" ",strip=True) if soup.title else "(none)",flush=True)
+            return parse(soup,names)
+        except Exception as exc:
+            errors.append(f"{url}: {exc}")
+            print("Source rejected:",errors[-1],flush=True)
+    raise RuntimeError("No complete, consistent league source: "+" | ".join(errors))
+
 def main():
     s=PATH.read_text(encoding="utf-8")
     names0=extract(s,r"const teams=(\[.*?\]), games=")
@@ -77,12 +130,7 @@ def main():
     seasons0=extract(s,r"seasonRows=(\[\[.*?\]\]);")
     stats0=extract(s,r"stats=(\[\[.*?\]\]);")
     require(NOW.date().isoformat()<"2027-07-01","Season ended: review new league ID and halls first")
-    req=Request(URL,headers={"User-Agent":"SG-Poing-Volleyball-Dashboard/1.0","Cache-Control":"no-cache"})
-    with urlopen(req,timeout=40) as response:
-        require(response.status==200,"League HTTP error")
-        raw=response.read(4_000_001)
-    require(len(raw)<=4_000_000,"Source too large")
-    matches,table=parse(BeautifulSoup(raw,"html.parser"),names0)
+    matches,table=fetch_source(names0)
     old={(m[0],m[1]):m for m in games0}
     require(set(old)==set(matches),"Fixture identities changed")
     for key,(m,st) in matches.items():
@@ -161,5 +209,67 @@ def main():
     require(all(x in s for x in ('id="calbody"','id="dashrefresh"','id="hallenkarte"','id="installapp"','id="dashmenutoggle"','id="adminrefresh"')),"Existing features lost")
     PATH.write_text(s,encoding="utf-8")
     print(f"Validated {len(games)} fixtures, {g} Poing results, rank {rank}/{n}.")
+def self_test():
+    import tempfile
+    from unittest.mock import patch
+    global PATH
+    original=PATH
+    source=original.read_text(encoding="utf-8")
+    names=extract(source,r"const teams=(\[.*?\]), games=")
+    games=extract(source,r"games=(\[\[.*?\]\]), poing=")
+    hist=extract(source,r"const histRaw=(\[\[.*?\]\]), seasonRows=")
+    own=names.index("SG Poing I")
+    scores={(m[0],m[1],m[2]):m[3] for m in hist if m[0]>="2026-07-01"}
+    sums=[[0]*7 for _ in names]
+    rows=[]
+    moved=False
+    for h,v,d,t,score in games:
+        if score is None and not moved:
+            t="20:01" if t!="20:01" else "20:02"
+            moved=True
+        values=[]
+        if score is not None:
+            if own in (h,v):
+                st=scores[(d,"H" if h==own else "A",names[v if h==own else h])]
+                if v==own: st=[xy[::-1] for xy in st]
+            else:
+                st=[[25,19]]*score+[[19,25]]*(3-score)
+            values=[score,3-score,score,3-score,sum(x for x,y in st),sum(y for x,y in st)]+[x for xy in st for x in xy]
+            for i,a,b,ss in ((h,score,3-score,st),(v,3-score,score,[xy[::-1] for xy in st])):
+                z=sums[i]; z[0]+=a; z[1]+=int(a>=2); z[2]+=a; z[3]+=b; z[4]+=sum(x for x,y in ss); z[5]+=sum(y for x,y in ss); z[6]+=1
+        # Include TH, non-breaking spaces, separate logo cells, and nested names.
+        rows.append("<tr><th>1</th><td>"+date(d)+"</td><td>"+t+"</td><td><a>"+escape(names[h])+"</a></td><td></td><td><span>"+escape(names[v])+"</span></td>"+"".join("<td>"+str(x)+"</td>" for x in values or [""]*12)+"</tr>")
+    standing=[]
+    for i,z in enumerate(sums):
+        p,w,sw,sl,bp,ba,g=z
+        standing.append(f"<tr><th>{i+1}</th><td></td><td><a>{escape(names[i])}</a></td><td></td><td>{p}</td><td>{w}</td><td>{sw}&nbsp;:&nbsp;{sl}</td><td>{bp}:{ba}</td><td>{g}</td></tr>")
+    data=parse(BeautifulSoup("<table>"+"".join(standing+rows)+"</table>","html5lib"),names)
+    require(len(data[0])==len(games),"Parser regression")
+    with tempfile.TemporaryDirectory() as tmp:
+        PATH=Path(tmp)/"index.html"
+        PATH.write_text(source,encoding="utf-8")
+        try:
+            with patch(__name__+".fetch_source",return_value=data):
+                main()
+                updated=PATH.read_text(encoding="utf-8")
+                require(updated!=source,"Render regression: no update")
+                main()
+                require(PATH.read_text(encoding="utf-8")==updated,"Render regression: not idempotent")
+        finally:
+            PATH=original
+    print("Synthetic parser and dashboard update regression tests passed.",flush=True)
+
 if __name__=="__main__":
-    main()
+    import sys
+    if "--self-test" in sys.argv:
+        self_test()
+    elif "--check" in sys.argv:
+        import tempfile
+        original=PATH
+        with tempfile.TemporaryDirectory() as tmp:
+            PATH=Path(tmp)/"index.html"
+            PATH.write_bytes(original.read_bytes())
+            main()
+            print("Live dry run completed; repository unchanged.")
+    else:
+        main()
