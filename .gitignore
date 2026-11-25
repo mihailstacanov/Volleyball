@@ -1,0 +1,18 @@
+# Local credentials and environment configuration
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+secrets.json
+secrets.local.*
+# Python local environment
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+# Generated site
+_site/
