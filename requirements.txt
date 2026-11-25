@@ -1,2 +1,2 @@
-beautifulsoup4==4.13.4
+beautifulsoup4==4.15.0
 html5lib==1.1
