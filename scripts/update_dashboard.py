@@ -249,7 +249,7 @@ def self_test():
     standing=[]
     for i,z in enumerate(sums):
         p,w,sw,sl,bp,ba,g=z
-        standing.append(f"<tr><th>{i+1}</th><td></td><td><a>{escape(names[i])}</a></td><td></td><td>{p}</td><td>{w}</td><td><span style="display:none">14</span> {sw}&nbsp;:&nbsp;{sl}</td><td><span style="display:none">1.36496350365</span> {bp}:{ba}</td><td>{g}</td></tr>")
+        standing.append(f'<tr><th>{i+1}</th><td></td><td><a>{escape(names[i])}</a></td><td></td><td>{p}</td><td>{w}</td><td><span style="display:none">14</span> {sw}&nbsp;:&nbsp;{sl}</td><td><span style="display:none">1.36496350365</span> {bp}:{ba}</td><td>{g}</td></tr>')
     data=parse(BeautifulSoup("<table>"+"".join(standing+rows)+"</table>","html5lib"),names)
     require(len(data[0])==len(games),"Parser regression")
     with tempfile.TemporaryDirectory() as tmp:

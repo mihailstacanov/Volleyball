@@ -35,7 +35,7 @@ jobs:
             git push origin HEAD:main
           fi
   verify:
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main' && github.event.head_commit.message == 'Repair workflow YAML and run live validation'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
@@ -45,8 +45,8 @@ jobs:
       - name: Live source dry run without changing repository
         run: python scripts/update_dashboard.py --check
   deploy:
-    needs: refresh
-    if: always() && github.repository == 'mihailstacanov/Volleyball' && github.ref == 'refs/heads/main' && ((github.event_name == 'push' && needs.refresh.result == 'skipped') || (github.event_name == 'workflow_dispatch' && needs.refresh.result == 'success'))
+    needs: [refresh, verify]
+    if: always() && github.repository == 'mihailstacanov/Volleyball' && github.ref == 'refs/heads/main' && ((github.event_name == 'push' && needs.refresh.result == 'skipped' && needs.verify.result == 'success') || (github.event_name == 'workflow_dispatch' && needs.refresh.result == 'success'))
     runs-on: ubuntu-latest
     timeout-minutes: 10
     permissions:
