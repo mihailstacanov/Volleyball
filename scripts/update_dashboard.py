@@ -83,7 +83,14 @@ def parse(soup,names):
             store(fixtures,(h,v),([h,v,d,t,score],sets))
         elif len(ix)==1:
             i=ix[0]
-            before=numbers(c[:i]); after=numbers(c[i+1:])
+            before=numbers(c[:i])
+            # Standings contain hidden numeric sort keys before the displayed ratios.
+            # Extract only the trailing a:b pair in each score cell.
+            after=[]
+            for cell in c[i+1:]:
+                m=re.search(r"(\d+)\s*:\s*(\d+)$",cell)
+                if m: after.extend(map(int,m.groups()))
+                elif re.fullmatch(r"\d+",cell): after.append(int(cell))
             if len(before)!=1 or len(after)!=7: continue
             rank=before[0]; p,w,sw,sl,bp,ba,g=after
             key=names.index(tags[i])
@@ -242,7 +249,7 @@ def self_test():
     standing=[]
     for i,z in enumerate(sums):
         p,w,sw,sl,bp,ba,g=z
-        standing.append(f"<tr><th>{i+1}</th><td></td><td><a>{escape(names[i])}</a></td><td></td><td>{p}</td><td>{w}</td><td>{sw}&nbsp;:&nbsp;{sl}</td><td>{bp}:{ba}</td><td>{g}</td></tr>")
+        standing.append(f"<tr><th>{i+1}</th><td></td><td><a>{escape(names[i])}</a></td><td></td><td>{p}</td><td>{w}</td><td><span style="display:none">14</span> {sw}&nbsp;:&nbsp;{sl}</td><td><span style="display:none">1.36496350365</span> {bp}:{ba}</td><td>{g}</td></tr>")
     data=parse(BeautifulSoup("<table>"+"".join(standing+rows)+"</table>","html5lib"),names)
     require(len(data[0])==len(games),"Parser regression")
     with tempfile.TemporaryDirectory() as tmp:
