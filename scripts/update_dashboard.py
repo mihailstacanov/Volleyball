@@ -132,6 +132,16 @@ def fetch_source(names):
             print("Source rejected:",errors[-1],flush=True)
     raise RuntimeError("No complete, consistent league source: "+" | ".join(errors))
 
+def checked_stamp():
+    return datetime.now(ZoneInfo("Europe/Berlin")).strftime("%d.%m.%Y · %H:%M Uhr")
+
+def stamp_page(s, stamp_with_time):
+    day=stamp_with_time.split(" · ")[0]
+    s=replace(s,r"Datenstand \d{2}\.\d{2}\.\d{4}(?: · (?:\d{2}:\d{2} Uhr|Uhrzeit nicht erfasst))?",f"Datenstand {stamp_with_time}")
+    s=replace(s,r"(Offizielle Ligadaten</a> · Stand )\d{2}\.\d{2}\.\d{4}",lambda m:m[1]+day)
+    s=re.sub(r"(Momentaufnahme vom )\d{2}\.\d{2}\.\d{4}",lambda m:m[1]+day,s,count=1)
+    return s
+
 def main():
     s=PATH.read_text(encoding="utf-8")
     names0=extract(s,r"const teams=(\[.*?\]), games=")
@@ -166,7 +176,10 @@ def main():
         print("No changed league data.")
         if "--save-snapshot" in sys.argv:
             from season_store import snapshot
+            checked=stamp_page(s,checked_stamp())
+            if checked!=s: PATH.write_text(checked,encoding="utf-8")
             snapshot(PATH,matches,table,names0)
+            print("Successful source check; timestamp refreshed even without new results.",flush=True)
         return
     s=replace(s,r"const teams=\[.*?\], games=\[\[.*?\]\], poing=\d+, stats=\[\[.*?\]\];",f"const teams={js(names)}, games={js(games)}, poing={poing}, stats={js(stats)};")
     s=replace(s,r"const histRaw=\[\[.*?\]\], seasonRows=\[\[.*?\]\];",f"const histRaw={js(hist)}, seasonRows={js(seasons)};")
@@ -216,9 +229,7 @@ def main():
     archive=f'<td>SG Poing I</td><td>{rank} / {n}</td><td>{g}</td><td>{w}</td><td>{g-w}</td><td>{pct(w,g)}</td><td>{points}</td><td>{sw}:{sl}</td><td>{bp}:{ba}</td><td>Laufend</td>'
     s=replace(s,r'(>2026/27</a></td>)<td>SG Poing I</td>.*?(</tr>)',lambda m:m[1]+archive+m[2])
     s=replace(s,r"Detailanalyse: alle \d+ Spiele aus 2022/23 bis 2026/27 \(Stand \d{2}\.\d{2}\.\d{4}\)",f"Detailanalyse: alle {len(hist)} Spiele aus 2022/23 bis 2026/27 (Stand {stamp})")
-    stamp_with_time=NOW.strftime("%d.%m.%Y · %H:%M Uhr")
-    s=replace(s,r"Datenstand \d{2}\.\d{2}\.\d{4}(?: · (?:\d{2}:\d{2} Uhr|Uhrzeit nicht erfasst))?",f"Datenstand {stamp_with_time}")
-    s=replace(s,r"(Offizielle Ligadaten</a> · Stand )\d{2}\.\d{2}\.\d{4}",lambda m:m[1]+stamp)
+    s=stamp_page(s,checked_stamp() if "--save-snapshot" in sys.argv else NOW.strftime("%d.%m.%Y · %H:%M Uhr"))
     s=re.sub(r"DTSTAMP:\d{8}T\d{6}Z","DTSTAMP:"+datetime.now(ZoneInfo("UTC")).strftime("%Y%m%dT%H%M%SZ"),s)
     require(all(x in s for x in ('id="calbody"','id="dashrefresh"','id="hallenkarte"','id="installapp"','id="dashmenutoggle"','id="adminrefresh"')),"Existing features lost")
     PATH.write_text(s,encoding="utf-8")
@@ -272,6 +283,13 @@ def self_test():
                 require(updated!=source,"Render regression: no update")
                 main()
                 require(PATH.read_text(encoding="utf-8")==updated,"Render regression: not idempotent")
+                # An unchanged but successfully validated live refresh must advance
+                # only the check timestamp and save a corresponding snapshot.
+                fake_stamp="01.12.2026 · 12:34 Uhr"
+                with patch.object(sys,"argv",["update_dashboard.py","--save-snapshot"]), patch(__name__+".checked_stamp",return_value=fake_stamp), patch("season_store.snapshot") as save:
+                    main()
+                    require(PATH.read_text(encoding="utf-8")==stamp_page(updated,fake_stamp),"Unchanged refresh must only update check timestamp")
+                    require(save.call_count==1,"Snapshot not saved after successful check")
         finally:
             PATH=original
     print("Synthetic parser and dashboard update regression tests passed.",flush=True)

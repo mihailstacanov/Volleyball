@@ -6,7 +6,7 @@ from zoneinfo import ZoneInfo
 from pathlib import Path
 from urllib.request import Request, urlopen
 from bs4 import BeautifulSoup
-from update_dashboard import parse, require
+from update_dashboard import parse, require, checked_stamp
 
 ROOT="https://www.ost.volleyball-freizeit.de"
 PATH=Path("team2.html")
@@ -44,7 +44,8 @@ def main():
     s,m,data=read_page();check_seed(data)
     old=json.loads(m[1])
     if "--self-test" in sys.argv:
-        print("Team II fixture and standings checks passed",flush=True);return
+        test_unchanged_stamp(data)
+        print("Team II fixture, standings and timestamp checks passed",flush=True);return
     require(NOW.date().isoformat()<"2027-07-01","Season ended: review source")
     soup=load(ROOT+"/saison/1106")
     matches,table=parse(soup,data["names"],allow_unscheduled=True)
@@ -66,6 +67,9 @@ def main():
     if names!=data["names"] or games!=sorted(data["games"],key=lambda m:(m[2] or "9999",m[3],m[0],m[1])) or played!=data["own"] or newtable!=data["table"]:
         data.update(names=names,games=games,table=newtable,own=played,stamp=NOW.strftime("%d.%m.%Y · %H:%M Uhr"))
     check_seed(data)
+    if "--save-snapshot" in sys.argv and "--check" not in sys.argv:
+        data["stamp"]=checked_stamp()
+        print("Successful source check; timestamp refreshed even without new results.",flush=True)
     print("Team II validated",len(games),"fixtures",len(names),"standings",len(played),"own matches",flush=True)
     print("Using locally stored historical archive.",flush=True)
     if data!=old and "--check" not in sys.argv:
@@ -76,4 +80,36 @@ def main():
     if "--save-snapshot" in sys.argv and "--check" not in sys.argv:
         from season_store import snapshot
         snapshot(PATH,matches,table,source_names)
+def test_unchanged_stamp(data):
+    import tempfile
+    from unittest.mock import patch
+    global PATH
+    original=PATH
+    names=data["names"]
+    own=names.index(TEAM)
+    scores={(x[1],x[2],x[3]):x[4] for x in data["own"]}
+    fixtures={}
+    for m in data["games"]:
+        h,v,d,t,score=m
+        sets=[]
+        if score is not None and own in (h,v):
+            sets=scores[(d,"H" if h==own else "A",names[v if h==own else h])]
+            if v==own: sets=[x[::-1] for x in sets]
+        elif score is not None:
+            sets=[[25,19]]*score+[[19,25]]*(3-score)
+        fixtures[(h,v)]=(m,sets)
+    table={i:tuple(row) for i,row in enumerate(data["table"])}
+    fake_stamp="01.12.2026 · 12:34 Uhr"
+    with tempfile.TemporaryDirectory() as tmp:
+        PATH=Path(tmp)/"team2.html"
+        PATH.write_bytes(original.read_bytes())
+        try:
+            with patch.object(sys,"argv",["update_team2.py","--save-snapshot"]), patch(__name__+".load",return_value=None), patch(__name__+".parse",return_value=(fixtures,table)), patch(__name__+".checked_stamp",return_value=fake_stamp), patch("season_store.snapshot") as save:
+                main()
+                s,_,updated=read_page()
+                require(updated["stamp"]==fake_stamp and "Datenstand "+fake_stamp in s,"Unchanged Team II timestamp not updated")
+                require(all(updated[k]==data[k] for k in data if k!="stamp"),"Unchanged Team II data modified")
+                require(save.call_count==1,"Team II snapshot not saved")
+        finally:
+            PATH=original
 if __name__=="__main__": main()
