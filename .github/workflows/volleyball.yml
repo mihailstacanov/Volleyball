@@ -101,7 +101,7 @@ jobs:
         with:
           ref: main
           persist-credentials: false
-      - uses: actions/configure-pages@v5
+      - uses: actions/configure-pages@v6
       - run: |
           mkdir -p _site
           cp index.html team2.html manifest.webmanifest apple-touch-icon.png icon-192.png icon-512.png _site/
