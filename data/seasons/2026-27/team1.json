@@ -555,5 +555,766 @@
     "Laufend"
   ],
   "archiveRow": "<tr><td><a href=\"https://www.ost.volleyball-freizeit.de/saison/1096\" rel=\"noopener\" target=\"_blank\">2026/27</a></td><td>SG Poing I</td><td>6 / 8</td><td>5</td><td>1</td><td>4</td><td>20,0 %</td><td>4</td><td>4:11</td><td>280:346</td><td>Laufend</td></tr>",
-  "complete": false
+  "complete": false,
+  "leagueMatches": [
+    {
+      "home": "SV Forsting-Pfaffing",
+      "away": "TV Markt Schwaben II",
+      "date": "2026-09-24",
+      "time": "20:00",
+      "score": 2,
+      "sets": [
+        [
+          25,
+          15
+        ],
+        [
+          23,
+          25
+        ],
+        [
+          25,
+          19
+        ]
+      ]
+    },
+    {
+      "home": "SVN München",
+      "away": "TSV Vaterstetten II",
+      "date": "2026-10-07",
+      "time": "20:00",
+      "score": 3,
+      "sets": [
+        [
+          25,
+          21
+        ],
+        [
+          32,
+          30
+        ],
+        [
+          25,
+          19
+        ]
+      ]
+    },
+    {
+      "home": "SG Poing I",
+      "away": "SV Forsting-Pfaffing",
+      "date": "2026-10-07",
+      "time": "20:30",
+      "score": 1,
+      "sets": [
+        [
+          25,
+          23
+        ],
+        [
+          17,
+          25
+        ],
+        [
+          17,
+          25
+        ]
+      ]
+    },
+    {
+      "home": "Putzbrunner SV I",
+      "away": "TSV Unterföhring I",
+      "date": "2026-10-08",
+      "time": "20:00",
+      "score": 2,
+      "sets": [
+        [
+          25,
+          21
+        ],
+        [
+          12,
+          25
+        ],
+        [
+          25,
+          18
+        ]
+      ]
+    },
+    {
+      "home": "TV Markt Schwaben II",
+      "away": "SpVgg Höhenkirchen",
+      "date": "2026-10-09",
+      "time": "20:00",
+      "score": 2,
+      "sets": [
+        [
+          25,
+          21
+        ],
+        [
+          19,
+          25
+        ],
+        [
+          25,
+          16
+        ]
+      ]
+    },
+    {
+      "home": "TSV Unterföhring I",
+      "away": "SG Poing I",
+      "date": "2026-10-12",
+      "time": "20:15",
+      "score": 1,
+      "sets": [
+        [
+          18,
+          25
+        ],
+        [
+          23,
+          25
+        ],
+        [
+          25,
+          20
+        ]
+      ]
+    },
+    {
+      "home": "TSV Unterföhring I",
+      "away": "SVN München",
+      "date": "2026-10-19",
+      "time": "20:15",
+      "score": 0,
+      "sets": [
+        [
+          11,
+          25
+        ],
+        [
+          12,
+          25
+        ],
+        [
+          22,
+          25
+        ]
+      ]
+    },
+    {
+      "home": "SG Poing I",
+      "away": "TV Markt Schwaben II",
+      "date": "2026-10-21",
+      "time": "20:30",
+      "score": 1,
+      "sets": [
+        [
+          19,
+          25
+        ],
+        [
+          25,
+          7
+        ],
+        [
+          19,
+          25
+        ]
+      ]
+    },
+    {
+      "home": "SV Forsting-Pfaffing",
+      "away": "Putzbrunner SV I",
+      "date": "2026-10-22",
+      "time": "20:00",
+      "score": 1,
+      "sets": [
+        [
+          25,
+          15
+        ],
+        [
+          23,
+          25
+        ],
+        [
+          21,
+          25
+        ]
+      ]
+    },
+    {
+      "home": "SVN München",
+      "away": "SV Forsting-Pfaffing",
+      "date": "2026-10-28",
+      "time": "20:00",
+      "score": 2,
+      "sets": [
+        [
+          25,
+          13
+        ],
+        [
+          25,
+          17
+        ],
+        [
+          17,
+          25
+        ]
+      ]
+    },
+    {
+      "home": "Putzbrunner SV I",
+      "away": "SG Poing I",
+      "date": "2026-10-29",
+      "time": "20:00",
+      "score": 3,
+      "sets": [
+        [
+          25,
+          12
+        ],
+        [
+          25,
+          13
+        ],
+        [
+          25,
+          12
+        ]
+      ]
+    },
+    {
+      "home": "TV Markt Schwaben II",
+      "away": "TSV Vaterstetten II",
+      "date": "2026-10-30",
+      "time": "20:00",
+      "score": 3,
+      "sets": [
+        [
+          25,
+          20
+        ],
+        [
+          25,
+          23
+        ],
+        [
+          25,
+          21
+        ]
+      ]
+    },
+    {
+      "home": "SpVgg Höhenkirchen",
+      "away": "SVN München",
+      "date": "2026-11-12",
+      "time": "20:00",
+      "score": 0,
+      "sets": [
+        [
+          19,
+          25
+        ],
+        [
+          21,
+          25
+        ],
+        [
+          13,
+          25
+        ]
+      ]
+    },
+    {
+      "home": "TSV Unterföhring I",
+      "away": "TSV Vaterstetten II",
+      "date": "2026-11-12",
+      "time": "20:00",
+      "score": 1,
+      "sets": [
+        [
+          16,
+          25
+        ],
+        [
+          17,
+          25
+        ],
+        [
+          25,
+          19
+        ]
+      ]
+    },
+    {
+      "home": "TSV Vaterstetten II",
+      "away": "Putzbrunner SV I",
+      "date": "2026-11-16",
+      "time": "20:00",
+      "score": 1,
+      "sets": [
+        [
+          25,
+          23
+        ],
+        [
+          18,
+          25
+        ],
+        [
+          16,
+          25
+        ]
+      ]
+    },
+    {
+      "home": "SpVgg Höhenkirchen",
+      "away": "TSV Unterföhring I",
+      "date": "2026-11-19",
+      "time": "20:00",
+      "score": 0,
+      "sets": [
+        [
+          20,
+          25
+        ],
+        [
+          18,
+          25
+        ],
+        [
+          28,
+          30
+        ]
+      ]
+    },
+    {
+      "home": "SG Poing I",
+      "away": "SVN München",
+      "date": "2026-11-25",
+      "time": "20:30",
+      "score": 0,
+      "sets": [
+        [
+          17,
+          25
+        ],
+        [
+          20,
+          25
+        ],
+        [
+          14,
+          25
+        ]
+      ]
+    },
+    {
+      "home": "Putzbrunner SV I",
+      "away": "TV Markt Schwaben II",
+      "date": "2026-11-26",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "SV Forsting-Pfaffing",
+      "away": "SpVgg Höhenkirchen",
+      "date": "2026-11-26",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "SVN München",
+      "away": "Putzbrunner SV I",
+      "date": "2026-12-02",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "SpVgg Höhenkirchen",
+      "away": "SG Poing I",
+      "date": "2026-12-03",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "TV Markt Schwaben II",
+      "away": "TSV Unterföhring I",
+      "date": "2026-12-04",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "TSV Vaterstetten II",
+      "away": "SV Forsting-Pfaffing",
+      "date": "2026-12-07",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "SVN München",
+      "away": "TV Markt Schwaben II",
+      "date": "2026-12-16",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "SG Poing I",
+      "away": "TSV Vaterstetten II",
+      "date": "2026-12-16",
+      "time": "20:30",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "Putzbrunner SV I",
+      "away": "SpVgg Höhenkirchen",
+      "date": "2026-12-17",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "SV Forsting-Pfaffing",
+      "away": "TSV Unterföhring I",
+      "date": "2026-12-17",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "SVN München",
+      "away": "SpVgg Höhenkirchen",
+      "date": "2027-01-20",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "SG Poing I",
+      "away": "TSV Unterföhring I",
+      "date": "2027-01-20",
+      "time": "20:30",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "Putzbrunner SV I",
+      "away": "TSV Vaterstetten II",
+      "date": "2027-01-21",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "TV Markt Schwaben II",
+      "away": "SV Forsting-Pfaffing",
+      "date": "2027-01-22",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "TSV Vaterstetten II",
+      "away": "SpVgg Höhenkirchen",
+      "date": "2027-01-25",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "TSV Vaterstetten II",
+      "away": "SVN München",
+      "date": "2027-02-01",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "TSV Unterföhring I",
+      "away": "Putzbrunner SV I",
+      "date": "2027-02-01",
+      "time": "20:15",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "SV Forsting-Pfaffing",
+      "away": "SG Poing I",
+      "date": "2027-02-04",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "SpVgg Höhenkirchen",
+      "away": "TV Markt Schwaben II",
+      "date": "2027-02-04",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "SVN München",
+      "away": "TSV Unterföhring I",
+      "date": "2027-02-24",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "Putzbrunner SV I",
+      "away": "SV Forsting-Pfaffing",
+      "date": "2027-02-25",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "SpVgg Höhenkirchen",
+      "away": "TSV Vaterstetten II",
+      "date": "2027-02-25",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "TV Markt Schwaben II",
+      "away": "SG Poing I",
+      "date": "2027-02-26",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "TSV Vaterstetten II",
+      "away": "TV Markt Schwaben II",
+      "date": "2027-03-01",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "TSV Unterföhring I",
+      "away": "SpVgg Höhenkirchen",
+      "date": "2027-03-01",
+      "time": "20:15",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "SG Poing I",
+      "away": "Putzbrunner SV I",
+      "date": "2027-03-03",
+      "time": "20:30",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "SV Forsting-Pfaffing",
+      "away": "SVN München",
+      "date": "2027-03-04",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "TSV Vaterstetten II",
+      "away": "TSV Unterföhring I",
+      "date": "2027-03-08",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "SVN München",
+      "away": "SG Poing I",
+      "date": "2027-03-17",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "SpVgg Höhenkirchen",
+      "away": "SV Forsting-Pfaffing",
+      "date": "2027-03-18",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "TV Markt Schwaben II",
+      "away": "Putzbrunner SV I",
+      "date": "2027-03-19",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "TSV Unterföhring I",
+      "away": "TV Markt Schwaben II",
+      "date": "2027-04-05",
+      "time": "20:15",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "SG Poing I",
+      "away": "SpVgg Höhenkirchen",
+      "date": "2027-04-07",
+      "time": "20:30",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "Putzbrunner SV I",
+      "away": "SVN München",
+      "date": "2027-04-08",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "SV Forsting-Pfaffing",
+      "away": "TSV Vaterstetten II",
+      "date": "2027-04-08",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "TSV Vaterstetten II",
+      "away": "SG Poing I",
+      "date": "2027-04-12",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "TSV Unterföhring I",
+      "away": "SV Forsting-Pfaffing",
+      "date": "2027-04-12",
+      "time": "20:15",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "SpVgg Höhenkirchen",
+      "away": "Putzbrunner SV I",
+      "date": "2027-04-15",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    },
+    {
+      "home": "TV Markt Schwaben II",
+      "away": "SVN München",
+      "date": "2027-04-16",
+      "time": "20:00",
+      "score": null,
+      "sets": []
+    }
+  ],
+  "leagueStandings": [
+    {
+      "team": "SVN München",
+      "rank": 1,
+      "points": 14,
+      "wins": 5,
+      "setsFor": 14,
+      "setsAgainst": 1,
+      "ballsFor": 374,
+      "ballsAgainst": 274,
+      "games": 5
+    },
+    {
+      "team": "Putzbrunner SV I",
+      "rank": 2,
+      "points": 9,
+      "wins": 4,
+      "setsFor": 9,
+      "setsAgainst": 3,
+      "ballsFor": 275,
+      "ballsAgainst": 229,
+      "games": 4
+    },
+    {
+      "team": "TV Markt Schwaben II",
+      "rank": 3,
+      "points": 8,
+      "wins": 3,
+      "setsFor": 8,
+      "setsAgainst": 4,
+      "ballsFor": 260,
+      "ballsAgainst": 262,
+      "games": 4
+    },
+    {
+      "team": "SV Forsting-Pfaffing",
+      "rank": 4,
+      "points": 6,
+      "wins": 2,
+      "setsFor": 6,
+      "setsAgainst": 6,
+      "ballsFor": 270,
+      "ballsAgainst": 250,
+      "games": 4
+    },
+    {
+      "team": "TSV Unterföhring I",
+      "rank": 5,
+      "points": 6,
+      "wins": 1,
+      "setsFor": 6,
+      "setsAgainst": 9,
+      "ballsFor": 313,
+      "ballsAgainst": 342,
+      "games": 5
+    },
+    {
+      "team": "SG Poing I",
+      "rank": 6,
+      "points": 4,
+      "wins": 1,
+      "setsFor": 4,
+      "setsAgainst": 11,
+      "ballsFor": 280,
+      "ballsAgainst": 346,
+      "games": 5
+    },
+    {
+      "team": "TSV Vaterstetten II",
+      "rank": 7,
+      "points": 3,
+      "wins": 1,
+      "setsFor": 3,
+      "setsAgainst": 9,
+      "ballsFor": 262,
+      "ballsAgainst": 288,
+      "games": 4
+    },
+    {
+      "team": "SpVgg Höhenkirchen",
+      "rank": 8,
+      "points": 1,
+      "wins": 0,
+      "setsFor": 1,
+      "setsAgainst": 8,
+      "ballsFor": 181,
+      "ballsAgainst": 224,
+      "games": 3
+    }
+  ]
 }
