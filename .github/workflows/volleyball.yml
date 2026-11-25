@@ -105,7 +105,7 @@ jobs:
       - run: |
           mkdir -p _site
           cp index.html team2.html manifest.webmanifest apple-touch-icon.png icon-192.png icon-512.png _site/
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v5
         with:
           path: _site
       - name: Wait for Pages artifact to become visible
