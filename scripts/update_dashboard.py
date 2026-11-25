@@ -154,7 +154,8 @@ def main():
     archive=f'<td>SG Poing I</td><td>{rank} / {n}</td><td>{g}</td><td>{w}</td><td>{g-w}</td><td>{pct(w,g)}</td><td>{points}</td><td>{sw}:{sl}</td><td>{bp}:{ba}</td><td>Laufend</td>'
     s=replace(s,r'(>2026/27</a></td>)<td>SG Poing I</td>.*?(</tr>)',lambda m:m[1]+archive+m[2])
     s=replace(s,r"Detailanalyse: alle \d+ Spiele aus 2022/23 bis 2026/27 \(Stand \d{2}\.\d{2}\.\d{4}\)",f"Detailanalyse: alle {len(hist)} Spiele aus 2022/23 bis 2026/27 (Stand {stamp})")
-    s=replace(s,r"Datenstand \d{2}\.\d{2}\.\d{4}",f"Datenstand {stamp}")
+    stamp_with_time=NOW.strftime("%d.%m.%Y · %H:%M Uhr")
+    s=replace(s,r"Datenstand \d{2}\.\d{2}\.\d{4}(?: · (?:\d{2}:\d{2} Uhr|Uhrzeit nicht erfasst))?",f"Datenstand {stamp_with_time}")
     s=replace(s,r"(Offizielle Ligadaten</a> · Stand )\d{2}\.\d{2}\.\d{4}",lambda m:m[1]+stamp)
     s=re.sub(r"DTSTAMP:\d{8}T\d{6}Z","DTSTAMP:"+datetime.now(ZoneInfo("UTC")).strftime("%Y%m%dT%H%M%SZ"),s)
     require(all(x in s for x in ('id="calbody"','id="dashrefresh"','id="hallenkarte"','id="installapp"','id="dashmenutoggle"','id="adminrefresh"')),"Existing features lost")
