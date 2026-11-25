@@ -44,8 +44,36 @@ jobs:
       - run: python scripts/update_dashboard.py --self-test
       - name: Live source dry run without changing repository
         run: python scripts/update_dashboard.py --check
+  refresh2:
+    needs: refresh
+    if: always() && github.repository == 'mihailstacanov/Volleyball' && github.ref == 'refs/heads/main' && ((github.event_name == 'workflow_dispatch' && needs.refresh.result == 'success' && github.actor == 'mihailstacanov' && github.triggering_actor == 'mihailstacanov') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[team2-bootstrap]')))
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - run: python -m pip install beautifulsoup4==4.13.4 html5lib==1.1
+      - name: Validate Team II snapshot
+        run: python scripts/update_team2.py --self-test
+      - name: Update Team II and discover historical seasons
+        run: python scripts/update_team2.py --archive
+      - name: Commit verified Team II data
+        run: |
+          git diff --check
+          if git diff --quiet -- team2.html; then
+            echo "No new Team II data."
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add team2.html
+            git commit -m "Refresh verified SG Poing II league data"
+            git push origin HEAD:main
+          fi
   deploy:
-    needs: [refresh, verify]
+    needs: [refresh, verify, refresh2]
     if: always() && github.repository == 'mihailstacanov/Volleyball' && github.ref == 'refs/heads/main' && ((github.event_name == 'push' && needs.refresh.result == 'skipped' && needs.verify.result == 'success') || (github.event_name == 'workflow_dispatch' && needs.refresh.result == 'success'))
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -64,7 +92,7 @@ jobs:
       - uses: actions/configure-pages@v5
       - run: |
           mkdir -p _site
-          cp index.html manifest.webmanifest apple-touch-icon.png icon-192.png icon-512.png _site/
+          cp index.html team2.html manifest.webmanifest apple-touch-icon.png icon-192.png icon-512.png _site/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site

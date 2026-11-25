@@ -26,7 +26,7 @@ def pct(a,b): return (f"{100*a/b:.1f}".replace(".",",")+" %") if b else "—"
 def date(d): return datetime.fromisoformat(d).strftime("%d.%m.%Y")
 def pair(s): return tuple(int(x.strip()) for x in s.split(":"))
 def won(m): return sum(a>b for a,b in m[3])
-def parse(soup,names):
+def parse(soup,names,allow_unscheduled=False):
     fixtures={}; table={}; row_count=0; examples=[]
     def norm(x): return " ".join(x.split())
     def team(cell):
@@ -62,11 +62,13 @@ def parse(soup,names):
             prefix=" ".join(c[:a])
             ds=re.findall(r"(?<!\d)(\d{1,2}\.\d{1,2}\.(?:\d{4}|\d{2}))(?!\d)",prefix)
             ts=re.findall(r"(?<!\d)(\d{1,2}:[0-5]\d)(?!\d)",prefix)
-            if not ds: continue
-            require(len(ds)==1 and len(ts)==1,"Ambiguous fixture date/time: "+repr(c))
-            d=datetime.strptime(ds[0],"%d.%m.%Y" if len(ds[0].split(".")[-1])==4 else "%d.%m.%y").date().isoformat()
-            t=datetime.strptime(ts[0],"%H:%M").strftime("%H:%M")
-            require("2026-07-01"<=d<"2027-07-01","Wrong season")
+
+            if not ds and not (allow_unscheduled and re.search(r"unbestimmt",prefix,re.I)): continue
+            require(len(ds)<=1 and len(ts)<=1,"Ambiguous fixture date/time: "+repr(c))
+            d=datetime.strptime(ds[0],"%d.%m.%Y" if len(ds[0].split(".")[-1])==4 else "%d.%m.%y").date().isoformat() if ds else ""
+            t=datetime.strptime(ts[0],"%H:%M").strftime("%H:%M") if ts else ""
+            require(not d or "2026-07-01"<=d<"2027-07-01","Wrong season")
+            require(allow_unscheduled or (d and t),"Missing fixture date/time")
             h,v=names.index(tags[a]),names.index(tags[b])
             require(h!=v,"Self fixture")
             tail=c[b+1:]
