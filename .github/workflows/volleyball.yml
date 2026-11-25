@@ -56,7 +56,7 @@ jobs:
       id-token: write
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url: ${{ steps.deployment.outputs.page_url || steps.deployment_retry.outputs.page_url || steps.deployment_final.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
         with:
@@ -82,5 +82,30 @@ jobs:
           done
           echo "::error::Pages artifact is not visible through the GitHub API"
           exit 1
+      - name: Allow artifact metadata to propagate
+        run: sleep 15
       - uses: actions/deploy-pages@v4
         id: deployment
+        continue-on-error: true
+      - name: Wait before retrying deployment
+        if: steps.deployment.outcome == 'failure'
+        run: sleep 20
+      - uses: actions/deploy-pages@v4
+        id: deployment_retry
+        if: steps.deployment.outcome == 'failure'
+        continue-on-error: true
+      - name: Wait before final deployment attempt
+        if: steps.deployment_retry.outcome == 'failure'
+        run: sleep 30
+      - uses: actions/deploy-pages@v4
+        id: deployment_final
+        if: steps.deployment_retry.outcome == 'failure'
+      - name: Assert successful deployment
+        if: always()
+        run: |
+          if [ "${{ steps.deployment.outcome }}" = success ] || [ "${{ steps.deployment_retry.outcome }}" = success ] || [ "${{ steps.deployment_final.outcome }}" = success ]; then
+            echo "Pages deployment succeeded."
+          else
+            echo "::error::All Pages deployment attempts failed"
+            exit 1
+          fi
