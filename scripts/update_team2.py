@@ -1,5 +1,6 @@
 """Refresh SG Poing II independently; discover its pre-2025 SG Poing I archive."""
-import json, re, sys
+import json, re, sys, time
+from urllib.error import URLError, HTTPError
 from datetime import datetime
 from zoneinfo import ZoneInfo
 from pathlib import Path
@@ -15,11 +16,22 @@ TEAM="SG Poing II"
 NOW=datetime.now(ZoneInfo("Europe/Berlin"))
 MARK=re.compile(r"const TEAM2_DATA=(.*?);\nconst teams=",re.S)
 
+ARCHIVE_DEADLINE=None
+
 def load(url):
-    with urlopen(Request(url,headers={"User-Agent":"Mozilla/5.0","Accept":"text/html","Accept-Language":"de-DE,de;q=0.9","Cache-Control":"no-cache"}),timeout=15) as r:
-        raw=r.read(4000001)
-    require(len(raw)<=4000000,"HTML too large")
-    return BeautifulSoup(raw,"html5lib")
+    for attempt in range(2):
+        if ARCHIVE_DEADLINE is not None and time.monotonic()>=ARCHIVE_DEADLINE:
+            raise TimeoutError("Archive time budget exhausted")
+        try:
+            with urlopen(Request(url,headers={"User-Agent":"Mozilla/5.0","Accept":"text/html","Accept-Language":"de-DE,de;q=0.9","Cache-Control":"no-cache"}),timeout=15) as r:
+                raw=r.read(4000001)
+            require(len(raw)<=4000000,"HTML too large")
+            return BeautifulSoup(raw,"html5lib")
+        except (URLError, TimeoutError, OSError) as e:
+            if isinstance(e,HTTPError) and e.code not in (408,429,500,502,503,504): raise
+            if attempt==1: raise
+            print("Temporary source error; retrying once:",url,str(e),flush=True)
+            time.sleep(2)
 
 def text(c): return " ".join(c.get_text(" ",strip=True).split())
 def cells(row): return row.find_all(["td","th"],recursive=False)
@@ -113,17 +125,19 @@ def scan_archive(data):
         require(0<len(links)<=30,"Unrecognized division links")
         found=[]; errors=[]
         for link in links:
+            if ARCHIVE_DEADLINE is not None and time.monotonic()>=ARCHIVE_DEADLINE:
+                errors.append("Archive time budget exhausted");break
             try: found.extend(season_data(link,y,exclude))
             except Exception as e: errors.append(link);print("Archive division unavailable",y,link,str(e),flush=True)
         return y,found,errors
     def safe_scan(entry):
         try: return scan_year(entry)
         except Exception as e: return entry[0],[],[str(e)]
-    with ThreadPoolExecutor(max_workers=5) as pool:
+    with ThreadPoolExecutor(max_workers=2) as pool:
         for y,found,errors in pool.map(safe_scan,sorted(years.items(),reverse=True)):
             candidates={str(r["id"]):(r,m) for r,m in found}
             if errors: failures.append(y)
-            if len(candidates)==1:
+            if len(candidates)==1 and not errors:
                 r,m=next(iter(candidates.values()))
                 archive[y]=r
                 if m: hist=[x for x in hist if x[0]!=y]+m
@@ -178,8 +192,13 @@ def main():
     check_seed(data)
     print("Team II validated",len(games),"fixtures",len(names),"standings",len(played),"own matches",flush=True)
     if "--archive" in sys.argv and not data.get("archiveScanned"):
+        global ARCHIVE_DEADLINE
+        ARCHIVE_DEADLINE=time.monotonic()+240
         try: scan_archive(data)
         except Exception as e: print("Archive scan deferred:",str(e),flush=True)
+        finally: ARCHIVE_DEADLINE=None
+    else:
+        print("Historical archive unchanged; normal league refresh only.",flush=True)
     if data!=old and "--check" not in sys.argv:
         value=json.dumps(data,ensure_ascii=False,separators=(",",":")).replace("<","\\u003c")
         s=s[:m.start(1)]+value+s[m.end(1):]
