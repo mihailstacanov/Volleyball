@@ -1,12 +1,6 @@
 name: Volleyball Dashboard
 on:
   workflow_dispatch:
-    inputs:
-      scan_archive:
-        description: 'Search older historical seasons (optional)'
-        type: boolean
-        required: false
-        default: false
   push:
     branches: [main]
 concurrency:
@@ -24,19 +18,23 @@ jobs:
     steps:
       - uses: actions/checkout@v5
       - run: python -m pip install beautifulsoup4==4.13.4 html5lib==1.1
+      - name: Restore saved history
+        run: python scripts/season_store.py restore index.html
       - name: Regression test parser and dashboard
         run: python scripts/update_dashboard.py --self-test
-      - name: Validate and update league data
-        run: python scripts/update_dashboard.py
+      - name: Validate and update current league and season snapshot
+        run: python scripts/update_dashboard.py --save-snapshot
+      - name: Verify local archive
+        run: python scripts/season_store.py verify index.html
       - name: Commit verified changes
         run: |
           git diff --check
-          if git diff --quiet -- index.html; then
+          git add index.html data/seasons/
+          if git diff --cached --quiet; then
             echo "No new league data."
           else
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add index.html
             git commit -m "Refresh verified volleyball league data"
             git push origin HEAD:main
           fi
@@ -49,11 +47,11 @@ jobs:
       - run: python -m pip install beautifulsoup4==4.13.4 html5lib==1.1
       - run: python scripts/update_dashboard.py --self-test
       - run: python scripts/update_team2.py --self-test
-      - name: Live source dry run without changing repository
-        run: python scripts/update_dashboard.py --check
+      - name: Verify stored history and season snapshots (offline)
+        run: python scripts/season_store.py verify
   refresh2:
     needs: refresh
-    if: always() && github.repository == 'mihailstacanov/Volleyball' && github.ref == 'refs/heads/main' && ((github.event_name == 'workflow_dispatch' && needs.refresh.result == 'success' && github.actor == 'mihailstacanov' && github.triggering_actor == 'mihailstacanov') || (github.event_name == 'push' && contains(github.event.head_commit.message, '[team2-bootstrap]')))
+    if: always() && github.repository == 'mihailstacanov/Volleyball' && github.ref == 'refs/heads/main' && github.event_name == 'workflow_dispatch' && needs.refresh.result == 'success' && github.actor == 'mihailstacanov' && github.triggering_actor == 'mihailstacanov'
     runs-on: ubuntu-latest
     timeout-minutes: 20
     permissions:
@@ -63,22 +61,23 @@ jobs:
         with:
           ref: main
       - run: python -m pip install beautifulsoup4==4.13.4 html5lib==1.1
+      - name: Restore saved history
+        run: python scripts/season_store.py restore team2.html
       - name: Validate Team II snapshot
         run: python scripts/update_team2.py --self-test
-      - name: Update Team II current league
-        run: python scripts/update_team2.py
-      - name: Search historical seasons (optional)
-        if: (github.event_name == 'workflow_dispatch' && inputs.scan_archive == true) || (github.event_name == 'push' && contains(github.event.head_commit.message, '[team2-bootstrap]'))
-        run: python scripts/update_team2.py --archive
+      - name: Update Team II current league and season snapshot
+        run: python scripts/update_team2.py --save-snapshot
+      - name: Verify local archive
+        run: python scripts/season_store.py verify team2.html
       - name: Commit verified Team II data
         run: |
           git diff --check
-          if git diff --quiet -- team2.html; then
+          git add team2.html data/seasons/
+          if git diff --cached --quiet; then
             echo "No new Team II data."
           else
             git config user.name "github-actions[bot]"
             git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add team2.html
             git commit -m "Refresh verified SG Poing II league data"
             git push origin HEAD:main
           fi

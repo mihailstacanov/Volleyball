@@ -1,5 +1,6 @@
 """Refresh the current 2026/27 season; fail closed on inconsistent or missing data."""
 import json
+import sys
 import re
 from datetime import datetime
 from zoneinfo import ZoneInfo
@@ -162,7 +163,11 @@ def main():
     require(g==len(own),"Missing Poing match details")
     seasons=[["2026/27",f"{rank} / {n}",g,w,"Laufend"]]+seasons0[1:]
     if names==names0 and sorted(games0,key=sortkey)==games and hist0==hist and stats0==stats and seasons0==seasons:
-        print("No changed league data."); return
+        print("No changed league data.")
+        if "--save-snapshot" in sys.argv:
+            from season_store import snapshot
+            snapshot(PATH,matches,table,names0)
+        return
     s=replace(s,r"const teams=\[.*?\], games=\[\[.*?\]\], poing=\d+, stats=\[\[.*?\]\];",f"const teams={js(names)}, games={js(games)}, poing={poing}, stats={js(stats)};")
     s=replace(s,r"const histRaw=\[\[.*?\]\], seasonRows=\[\[.*?\]\];",f"const histRaw={js(hist)}, seasonRows={js(seasons)};")
     def kpi(label,value,sub):
@@ -217,6 +222,9 @@ def main():
     s=re.sub(r"DTSTAMP:\d{8}T\d{6}Z","DTSTAMP:"+datetime.now(ZoneInfo("UTC")).strftime("%Y%m%dT%H%M%SZ"),s)
     require(all(x in s for x in ('id="calbody"','id="dashrefresh"','id="hallenkarte"','id="installapp"','id="dashmenutoggle"','id="adminrefresh"')),"Existing features lost")
     PATH.write_text(s,encoding="utf-8")
+    if "--save-snapshot" in sys.argv:
+        from season_store import snapshot
+        snapshot(PATH,matches,table,names0)
     print(f"Validated {len(games)} fixtures, {g} Poing results, rank {rank}/{n}.")
 def self_test():
     import tempfile
