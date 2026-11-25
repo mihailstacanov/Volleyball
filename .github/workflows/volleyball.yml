@@ -124,20 +124,20 @@ jobs:
           exit 1
       - name: Allow artifact metadata to propagate
         run: sleep 15
-      - uses: actions/deploy-pages@v4
+      - uses: actions/deploy-pages@v5
         id: deployment
         continue-on-error: true
       - name: Wait before retrying deployment
         if: steps.deployment.outcome == 'failure'
         run: sleep 20
-      - uses: actions/deploy-pages@v4
+      - uses: actions/deploy-pages@v5
         id: deployment_retry
         if: steps.deployment.outcome == 'failure'
         continue-on-error: true
       - name: Wait before final deployment attempt
         if: steps.deployment_retry.outcome == 'failure'
         run: sleep 30
-      - uses: actions/deploy-pages@v4
+      - uses: actions/deploy-pages@v5
         id: deployment_final
         if: steps.deployment_retry.outcome == 'failure'
       - name: Assert successful deployment
