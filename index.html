@@ -212,7 +212,10 @@ function build(x,p){
  }
  }else if(p===4){
  if(!v.details.length)html=big('—','Keine vollständigen Einzelspielstände für Heim- und Auswärtsanalyse.');
- else html=big(v.home.n&&v.away.n?signed(percent(v.home.w,v.home.n)-percent(v.away.w,v.away.n))+' pp':'—','Siegquote Heim minus Auswärts')+grid([['Heim · Siege / Spiele',v.home.w+' / '+v.home.n],['Auswärts · Siege / Spiele',v.away.w+' / '+v.away.n],['Heimsiegquote',pct(percent(v.home.w,v.home.n))],['Auswärtssiegquote',pct(percent(v.away.w,v.away.n))]])+para(v.complete?'Alle '+v.details.length+' erfassten Saisonspiele.':'Teilauswertung der '+v.details.length+' erfassten Spiele.');
+ else {
+ const diff=v.home.n&&v.away.n?percent(v.home.w,v.home.n)-percent(v.away.w,v.away.n):null;
+ html=(diff===null?big('—','Kein direkter Vergleich möglich: Heim- oder Auswärtsspiele fehlen.'):big((Math.abs(diff)>1e-9?'+':'')+format(Math.abs(diff)),diff>1e-9?'Prozentpunkte · Zu Hause erfolgreicher als auswärts.':diff< -1e-9?'Prozentpunkte · Auswärts erfolgreicher als zu Hause.':'Prozentpunkte · Gleiche Siegquote zu Hause und auswärts.'))+grid([['Heim · Siege / Spiele',v.home.w+' / '+v.home.n],['Auswärts · Siege / Spiele',v.away.w+' / '+v.away.n],['Heimsiegquote',pct(percent(v.home.w,v.home.n))],['Auswärtssiegquote',pct(percent(v.away.w,v.away.n))]])+para(v.complete?'Alle '+v.details.length+' erfassten Saisonspiele.':'Teilauswertung der '+v.details.length+' erfassten Spiele.');
+ }
  }else{
  if(!previous||!prevSeason.g||!x.g)html=big('—','Kein direkt vergleichbarer Vorjahresstand.')+para('Fehlende Spielzeiten und Corona-Pause werden nicht als sportliches Ergebnis gewertet.');
  else {
