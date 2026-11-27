@@ -79,7 +79,7 @@ VERSION                        Release-Version
 
 Beim Saisonwechsel bleiben die alten Snapshots erhalten. Die vorbereiteten Archivdateien werden aus den gespeicherten vollständigen Saisonergebnissen erzeugt. Neue Liga-IDs, Mannschaften, Hallen, Ligazonen und Saisonbezüge müssen vor der Umstellung geprüft werden. Details: [Datenarchiv](data/README.md).
 
-## Lokale Entwicklung
+## Technische Prüfung (für Entwickler)
 
 Voraussetzungen: Python 3.10+ und die in requirements.txt festgelegten Pakete.
 
@@ -88,12 +88,9 @@ python -m pip install -r requirements.txt
 python scripts/update_dashboard.py --self-test
 python scripts/update_team2.py --self-test
 python scripts/season_store.py verify
-python -m http.server 8000
 ```
 
-Dashboard im Browser: http://localhost:8000/
-
-Die Selbsttests verwenden lokale bzw. synthetische Daten und ändern keine produktiven Ergebnisse. Ein Live-Datenabruf ist dafür nicht erforderlich.
+Die Selbsttests verwenden gespeicherte bzw. synthetische Daten und ändern keine produktiven Ergebnisse. Ein Live-Datenabruf ist dafür nicht erforderlich. Für die Nutzung des Dashboards ist keine Installation notwendig: Die öffentliche Website ist direkt über die oben angegebenen Links erreichbar.
 
 ## Sicherheit und Releases
 
