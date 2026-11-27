@@ -45,16 +45,22 @@ jobs:
             exit 1
           fi
           tag="v$version"
+          # An already published version is immutable. A manual rerun from a
+          # later commit (e.g. documentation or league data) is a successful no-op.
+          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" --json tagName,isDraft --jq 'if .isDraft then "" else .tagName end' > "$RUNNER_TEMP/release-exists"; then
+            if [[ "$(cat "$RUNNER_TEMP/release-exists")" == "$tag" ]]; then
+              echo "Release $tag is already published; nothing to do."
+              exit 0
+            fi
+            echo "::error::Release $tag exists as a draft or has unexpected metadata; review it manually."
+            exit 1
+          fi
           grep -Fq "## $tag " CHANGELOG.md
           if git show-ref --verify --quiet "refs/tags/$tag"; then
             target=$(git rev-parse "$tag^{commit}")
             if [[ "$target" != "$GITHUB_SHA" ]]; then
-              echo "::error::Version tag already exists for another commit; refusing to overwrite it."
+              echo "::error::Unreleased version tag already points to another commit; refusing to overwrite it."
               exit 1
             fi
-          fi
-          if gh release view "$tag" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
-            echo "Release $tag already exists."
-            exit 0
           fi
           gh release create "$tag" --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --title "SG Poing Volleyball Dashboard $tag" --notes-file CHANGELOG.md
