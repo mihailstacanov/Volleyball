@@ -3,7 +3,7 @@
   "team": "SG Poing I",
   "season": 2026,
   "source": "https://www.ost.volleyball-freizeit.de/saison/1096",
-  "stamp": "26.11.2026 · 00:55 Uhr",
+  "stamp": "27.11.2026 · 14:27 Uhr",
   "names": [
     "SVN München",
     "Putzbrunner SV I",
@@ -139,7 +139,7 @@
       2,
       "2026-11-26",
       "20:00",
-      null
+      3
     ],
     [
       3,
@@ -415,14 +415,14 @@
       5
     ],
     [
-      9,
-      4,
-      4
+      12,
+      5,
+      5
     ],
     [
       8,
       3,
-      4
+      5
     ],
     [
       6,
@@ -919,8 +919,21 @@
       "away": "TV Markt Schwaben II",
       "date": "2026-11-26",
       "time": "20:00",
-      "score": null,
-      "sets": []
+      "score": 3,
+      "sets": [
+        [
+          25,
+          16
+        ],
+        [
+          25,
+          14
+        ],
+        [
+          25,
+          18
+        ]
+      ]
     },
     {
       "home": "SV Forsting-Pfaffing",
@@ -1242,13 +1255,13 @@
     {
       "team": "Putzbrunner SV I",
       "rank": 2,
-      "points": 9,
-      "wins": 4,
-      "setsFor": 9,
+      "points": 12,
+      "wins": 5,
+      "setsFor": 12,
       "setsAgainst": 3,
-      "ballsFor": 275,
-      "ballsAgainst": 229,
-      "games": 4
+      "ballsFor": 350,
+      "ballsAgainst": 277,
+      "games": 5
     },
     {
       "team": "TV Markt Schwaben II",
@@ -1256,10 +1269,10 @@
       "points": 8,
       "wins": 3,
       "setsFor": 8,
-      "setsAgainst": 4,
-      "ballsFor": 260,
-      "ballsAgainst": 262,
-      "games": 4
+      "setsAgainst": 7,
+      "ballsFor": 308,
+      "ballsAgainst": 337,
+      "games": 5
     },
     {
       "team": "SV Forsting-Pfaffing",
